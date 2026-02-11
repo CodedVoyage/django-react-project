@@ -1,0 +1,54 @@
+# Root level .gitignore for Django-React project
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# Documentation builds
+docs/_build/
+
+# Project specific
+*.bak
+*.backup
+.project
+.settings/
+
+# System files
+*.lnk

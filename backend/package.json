@@ -1,0 +1,12 @@
+{
+  "name": "django-react-backend",
+  "version": "1.0.0",
+  "description": "Django backend for Django-React project",
+  "scripts": {
+    "dev": "venv\\Scripts\\python.exe manage.py runserver",
+    "migrate": "venv\\Scripts\\python.exe manage.py migrate",
+    "makemigrations": "venv\\Scripts\\python.exe manage.py makemigrations",
+    "createsuperuser": "venv\\Scripts\\python.exe manage.py createsuperuser",
+    "shell": "venv\\Scripts\\python.exe manage.py shell"
+  }
+}
