@@ -6,7 +6,6 @@ import {
   CardContent,
   Typography,
   Alert,
-  CircularProgress,
   Chip,
   Drawer,
   IconButton,
@@ -15,12 +14,9 @@ import {
   ListItemText,
   Divider,
   Paper,
+  CircularProgress,
 } from '@mui/material';
 import {
-  Refresh as RefreshIcon,
-  Send as SendIcon,
-  CheckCircle as CheckCircleIcon,
-  Error as ErrorIcon,
   MenuBook as GettingStartedIcon,
   Close as CloseIcon,
   PlayArrow as PlayIcon,
@@ -30,66 +26,38 @@ import {
 } from '@mui/icons-material';
 import { MuiLoginForm } from '../components/ui';
 import Button from '../components/ui/Button';
-import { apiService } from '../services';
-import { ApiData, User, UserRole } from '../types';
+import AdminPage from './AdminPage';
+import { User, UserRole } from '../types';
 
 interface HomePageProps {
   isAuthenticated?: boolean;
   currentUser?: User | null;
   onLoginSuccess?: (token: string, userid: string) => void;
   onSwitchToRegister?: () => void;
+  onAdminRedirect?: () => void;
 }
 
 const HomePage: React.FC<HomePageProps> = ({
   isAuthenticated = false,
   currentUser,
   onLoginSuccess,
-  onSwitchToRegister
+  onSwitchToRegister,
+  onAdminRedirect
 }) => {
-  const [apiData, setApiData] = useState<ApiData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>('');
-  const [isTestingPost, setIsTestingPost] = useState<boolean>(false);
   const [gettingStartedOpen, setGettingStartedOpen] = useState<boolean>(false);
+  const [isRedirecting, setIsRedirecting] = useState<boolean>(false);
 
-  useEffect(() => {
-    // Only fetch API data for admin users
-    if (currentUser?.role === UserRole.ADMIN) {
-      fetchApiData();
-    } else {
-      setLoading(false);
-    }
-  }, [currentUser]);
-
-  const fetchApiData = async () => {
-    try {
-      setLoading(true);
-      const data = await apiService.getApiInfo();
-      setApiData(data);
-      setError('');
-    } catch (err: any) {
-      setError('Failed to connect to Django backend. Make sure the server is running on http://localhost:8000');
-      console.error('API Error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const testPost = async () => {
-    try {
-      setIsTestingPost(true);
-      const response = await apiService.testPost({
-        test: 'data from React',
-        timestamp: new Date().toISOString(),
-      });
-      alert(`POST Test Successful! Response: ${response.message}`);
-    } catch (err) {
-      alert('POST Test Failed!');
-      console.error('POST Error:', err);
-    } finally {
-      setIsTestingPost(false);
-    }
-  };
+  // Remove the auto-redirect logic since we're showing admin panel directly
+  // useEffect(() => {
+  //   if (isAuthenticated && currentUser?.role === UserRole.ADMIN) {
+  //     setIsRedirecting(true);
+  //     if (onAdminRedirect) {
+  //       setTimeout(() => {
+  //         onAdminRedirect();
+  //       }, 1000);
+  //     }
+  //   }
+  // }, [isAuthenticated, currentUser?.role, onAdminRedirect]);
 
   const renderGettingStartedContent = () => (
     <Box sx={{ p: 3, height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -302,193 +270,89 @@ const HomePage: React.FC<HomePageProps> = ({
   return (
     <Box sx={{
       minHeight: 'calc(100vh - 80px)',
-      background: 'linear-gradient(135deg, #E9D8A6 0%, #94D2BD 100%)',
-      py: 5,
+      background: currentUser?.role === UserRole.ADMIN ? 'transparent' : 'linear-gradient(135deg, #E9D8A6 0%, #94D2BD 100%)',
+      py: currentUser?.role === UserRole.ADMIN ? 0 : 5,
     }}>
-      <Container maxWidth="lg">
+      {/* Show AdminPage directly for admin users */}
+      {isAuthenticated && currentUser?.role === UserRole.ADMIN ? (
+        <AdminPage currentUser={currentUser} />
+      ) : (
+        <Container maxWidth="lg">
         <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' }, alignItems: 'flex-start', pt: 5 }}>
           <Box sx={{ flex: !isAuthenticated ? '60%' : '100%', display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ textAlign: { xs: 'center', md: 'left' }, mb: 6 }}>
-              <Typography variant="h2" component="h1" gutterBottom>
-                CodeWithAbhi
-              </Typography>
-              <Typography variant="h6" color="text.secondary" gutterBottom>
-                {isAuthenticated
-                  ? `Welcome back, ${currentUser?.username}!`
-                  : 'Role-based microfrontend authentication'
-                }
-              </Typography>
-              {isAuthenticated && currentUser && (
-                <Chip
-                  label={`Role: ${currentUser.role.toUpperCase()}`}
-                  color={currentUser.role === UserRole.ADMIN ? 'error' : currentUser.role === UserRole.MODERATOR ? 'warning' : 'primary'}
-                  sx={{ mt: 1, mr: 2 }}
-                />
+              {!isAuthenticated ? (
+                <>
+                  <Typography variant="h2" component="h1" gutterBottom>
+                    CodeWithAbhi
+                  </Typography>
+                  <Typography variant="h6" color="text.secondary" gutterBottom>
+                    Role-based microfrontend authentication
+                  </Typography>
+                  {/* Getting Started Button */}
+                  <Button
+                    variant="primary"
+                    startIcon={<GettingStartedIcon />}
+                    onClick={() => setGettingStartedOpen(true)}
+                    size="small"
+                  >
+                    Getting Started
+                  </Button>
+                </>
+              ) : currentUser?.role === UserRole.ADMIN ? (
+                // Admin users will see AdminPage below, not here
+                null
+              ) : (
+                <>
+                  <Typography variant="h2" component="h1" gutterBottom>
+                    Welcome back, {currentUser?.username}!
+                  </Typography>
+                  <Chip
+                    label={`Role: ${currentUser?.role?.toUpperCase()}`}
+                    color={currentUser?.role === UserRole.MODERATOR ? 'warning' : 'primary'}
+                    sx={{ mt: 1 }}
+                  />
+                </>
               )}
-              {/* Getting Started Button */}
-              <Button
-                variant="primary"
-                startIcon={<GettingStartedIcon />}
-                onClick={() => setGettingStartedOpen(true)}
-                size="small"
-              >
-                Getting Started
-              </Button>
             </Box>
 
-            {isAuthenticated && (
-              // Authenticated user dashboard content
+            {isAuthenticated && currentUser?.role !== UserRole.ADMIN && (
+              // Non-admin authenticated user dashboard content
               <Box>
                 <Typography variant="h5" component="h2" gutterBottom sx={{ mb: 3 }}>
-                  {currentUser?.role === UserRole.ADMIN
-                    ? 'Admin Dashboard - API Connection Status'
-                    : `${currentUser?.role} Dashboard`
-                  }
-                  {currentUser?.role === UserRole.ADMIN && (
-                    <Chip label="Admin Only" color="error" size="small" sx={{ ml: 2 }} />
-                  )}
+                  {currentUser?.role === UserRole.MODERATOR ? 'Moderator Dashboard' : 'User Dashboard'}
                 </Typography>
-
-                {currentUser?.role === UserRole.ADMIN ? (
-                  // Admin-only API status content
-                  <Box>
-                    {/* Loading State */}
-                    {loading && (
-                      <Card sx={{ mb: 3 }}>
-                        <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                          <CircularProgress size={48} sx={{ mb: 2 }} />
-                          <Typography variant="h6">Checking connection status...</Typography>
-                        </CardContent>
-                      </Card>
-                    )}
-
-                    {/* Error State */}
-                    {error && (
-                      <Alert
-                        severity="error"
-                        icon={<ErrorIcon />}
-                        sx={{ mb: 3 }}
-                      >
-                        <Typography variant="body1" component="div">
-                          <strong>Connection Error</strong>
-                        </Typography>
-                        <Typography variant="body2">{error}</Typography>
-                      </Alert>
-                    )}
-
-                    {/* Success State */}
-                    {apiData && (
-                      <Card sx={{ mb: 3 }}>
-                        <CardContent>
-                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                            <CheckCircleIcon color="success" sx={{ mr: 1 }} />
-                            <Typography variant="h6">Django API Connection Successful!</Typography>
-                          </Box>
-
-                          <Box sx={{ display: 'flex', gap: 2, mb: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
-                            <Box sx={{ flex: 1 }}>
-                              <Typography variant="body1">
-                                <strong>Message:</strong> {apiData.message}
-                              </Typography>
-                            </Box>
-                            <Box sx={{ flex: 1 }}>
-                              <Typography variant="body1">
-                                <strong>Status:</strong>
-                                <Chip
-                                  label={apiData.status}
-                                  color="success"
-                                  size="small"
-                                  sx={{ ml: 1 }}
-                                />
-                              </Typography>
-                            </Box>
-                          </Box>
-
-                          {apiData.endpoints && (
-                            <Box>
-                              <Typography variant="body1" component="div" gutterBottom>
-                                <strong>Available Endpoints:</strong>
-                              </Typography>
-                              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                {apiData.endpoints.map((endpoint, index) => (
-                                  <Chip
-                                    key={index}
-                                    label={endpoint}
-                                    variant="outlined"
-                                    size="small"
-                                  />
-                                ))}
-                              </Box>
-                            </Box>
-                          )}
-                        </CardContent>
-                      </Card>
-                    )}
-
-                    {/* Action Buttons */}
-                    <Card>
-                      <CardContent>
-                        <Typography variant="h6" gutterBottom>
-                          Admin API Testing
-                        </Typography>
-                        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                          <Button
-                            onClick={fetchApiData}
-                            variant="outlined-primary"
-                            startIcon={loading ? <CircularProgress size={16} /> : <RefreshIcon />}
-                            disabled={loading}
-                            size="small"
-                          >
-                            Refresh Connection Status
-                          </Button>
-
-                          <Button
-                            onClick={testPost}
-                            variant="primary"
-                            startIcon={isTestingPost ? <CircularProgress size={16} /> : <SendIcon />}
-                            disabled={isTestingPost}
-                            size="small"
-                          >
-                            Test Admin POST
-                          </Button>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </Box>
-                ) : (
-                  // Regular user content
-                  <Card>
-                    <CardContent>
-                      <Typography variant="h6" gutterBottom>
-                        Welcome, {currentUser?.username}!
-                      </Typography>
-                      <Typography variant="body1" paragraph>
-                        You are logged in as a <strong>{currentUser?.role}</strong>.
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" paragraph>
-                        Role-based features:
-                      </Typography>
-                      <Box sx={{ mb: 2 }}>
-                        {currentUser?.role === UserRole.MODERATOR ? (
-                          <Alert severity="info">
-                            As a Moderator, you have access to content management features (coming soon).
-                          </Alert>
-                        ) : (
-                          <Alert severity="success">
-                            As a User, you have access to all standard features of the application.
-                          </Alert>
-                        )}
-                      </Box>
-                      <Typography variant="body2" color="text.secondary">
-                        <strong>Your Account Details:</strong><br />
-                        User ID: {currentUser?.userid}<br />
-                        Email: {currentUser?.email}<br />
-                        Mobile: {currentUser?.mobile}<br />
-                        Member since: {new Date(currentUser?.createdAt || '').toLocaleDateString()}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                )}
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Welcome, {currentUser?.username}!
+                    </Typography>
+                    <Typography variant="body1" paragraph>
+                      You are logged in as a <strong>{currentUser?.role}</strong>.
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" paragraph>
+                      Role-based features:
+                    </Typography>
+                    <Box sx={{ mb: 2 }}>
+                      {currentUser?.role === UserRole.MODERATOR ? (
+                        <Alert severity="info">
+                          As a Moderator, you have access to content management features (coming soon).
+                        </Alert>
+                      ) : (
+                        <Alert severity="success">
+                          As a User, you have access to all standard features of the application.
+                        </Alert>
+                      )}
+                    </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      <strong>Your Account Details:</strong><br />
+                      User ID: {currentUser?.userid}<br />
+                      Email: {currentUser?.email}<br />
+                      Mobile: {currentUser?.mobile}<br />
+                      Member since: {new Date(currentUser?.createdAt || '').toLocaleDateString()}
+                    </Typography>
+                  </CardContent>
+                </Card>
               </Box>
             )}
           </Box>
@@ -512,9 +376,11 @@ const HomePage: React.FC<HomePageProps> = ({
           )}
         </Box>
       </Container>
+      )}
 
-      {/* Getting Started Drawer */}
-      <Drawer
+      {/* Getting Started Drawer - Only show for non-admin users */}
+      {(!isAuthenticated || currentUser?.role !== UserRole.ADMIN) && (
+        <Drawer
         anchor="right"
         open={gettingStartedOpen}
         onClose={() => setGettingStartedOpen(false)}
@@ -531,6 +397,7 @@ const HomePage: React.FC<HomePageProps> = ({
       >
         {renderGettingStartedContent()}
       </Drawer>
+      )}
     </Box>
   );
 };
