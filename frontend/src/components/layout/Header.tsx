@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -6,6 +6,14 @@ import {
   Box,
   Container,
   Chip,
+  Menu,
+  MenuItem,
+  Avatar,
+  Divider,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import {
   Home as HomeIcon,
@@ -13,9 +21,11 @@ import {
   PersonAdd as RegisterIcon,
   AdminPanelSettings as AdminIcon,
   Logout as LogoutIcon,
+  Person as PersonIcon,
+  Email as EmailIcon,
+  Phone as PhoneIcon,
 } from '@mui/icons-material';
 import { PageType, User, UserRole } from '../../types';
-import Button from '../ui/Button';
 
 interface HeaderProps {
   currentPage: PageType;
@@ -32,6 +42,27 @@ const Header: React.FC<HeaderProps> = ({
   currentUser,
   onLogout,
 }) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [showPersonalDetails, setShowPersonalDetails] = useState(false);
+  const isMenuOpen = Boolean(anchorEl);
+
+  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleProfileMenuClose = () => {
+    setAnchorEl(null);
+    setShowPersonalDetails(false);
+  };
+
+  const handleLogout = () => {
+    handleProfileMenuClose();
+    onLogout?.();
+  };
+
+  const handlePersonalDetailsClick = () => {
+    setShowPersonalDetails(!showPersonalDetails);
+  };
   const getRoleColor = (role?: UserRole): "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" => {
     switch (role) {
       case UserRole.ADMIN:
@@ -73,71 +104,203 @@ const Header: React.FC<HeaderProps> = ({
           </Typography>
 
           {/* Navigation */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Button
-              onClick={() => onPageChange('home')}
-              variant={currentPage === 'home' ? 'primary' : 'outlined-primary'}
-              startIcon={<HomeIcon />}
-              size="small"
-            >
-              Home
-            </Button>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Tooltip title="Home">
+              <IconButton
+                onClick={() => onPageChange('home')}
+                color={currentPage === 'home' ? 'primary' : 'default'}
+                sx={{
+                  backgroundColor: currentPage === 'home' ? 'primary.light' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: currentPage === 'home' ? 'primary.light' : 'action.hover',
+                  },
+                }}
+              >
+                <HomeIcon />
+              </IconButton>
+            </Tooltip>
 
             {!isAuthenticated ? (
               <>
-                <Button
-                  onClick={() => onPageChange('register')}
-                  variant={currentPage === 'register' ? 'secondary' : 'outlined-secondary'}
-                  startIcon={<RegisterIcon />}
-                  size="small"
-                >
-                  Register
-                </Button>
+                <Tooltip title="Register">
+                  <IconButton
+                    onClick={() => onPageChange('register')}
+                    color={currentPage === 'register' ? 'secondary' : 'default'}
+                    sx={{
+                      backgroundColor: currentPage === 'register' ? 'secondary.light' : 'transparent',
+                      '&:hover': {
+                        backgroundColor: currentPage === 'register' ? 'secondary.light' : 'action.hover',
+                      },
+                    }}
+                  >
+                    <RegisterIcon />
+                  </IconButton>
+                </Tooltip>
               </>
             ) : (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                {/* Admin Panel Button */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {/* Admin Panel Icon */}
                 {currentUser?.role === UserRole.ADMIN && (
-                  <Button
-                    onClick={() => onPageChange('admin')}
-                    variant={currentPage === 'admin' ? 'danger' : 'outlined-danger'}
-                    startIcon={<AdminIcon />}
-                    size="small"
-                  >
-                    Admin Panel
-                  </Button>
+                  <Tooltip title="Admin Panel">
+                    <IconButton
+                      onClick={() => onPageChange('admin')}
+                      color={currentPage === 'admin' ? 'error' : 'default'}
+                      sx={{
+                        backgroundColor: currentPage === 'admin' ? 'error.light' : 'transparent',
+                        '&:hover': {
+                          backgroundColor: currentPage === 'admin' ? 'error.light' : 'action.hover',
+                        },
+                      }}
+                    >
+                      <AdminIcon />
+                    </IconButton>
+                  </Tooltip>
                 )}
 
-                {/* User Info */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {currentUser?.username || 'User'}
-                  </Typography>
-                  </Box>
-                  <Box
-                  component="img"
-                  src={currentUser?.profileImage || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser?.username}`}
-                  alt={currentUser?.username || 'User'}
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    border: '2px solid',
-                    borderColor: 'primary.main',
+                {/* User Profile with Dropdown */}
+                <Box 
+                  sx={{ 
+                    position: 'relative',
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 1,
+                    cursor: 'pointer',
+                    padding: 0.5,
+                    borderRadius: 1,
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                    }
                   }}
+                  onClick={handleProfileMenuOpen}
+                  onMouseEnter={handleProfileMenuOpen}
+                >
+                  <Tooltip title={currentUser?.username || 'Profile'}>
+                    <Avatar
+                      src={currentUser?.profileImage || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser?.username}`}
+                      alt={currentUser?.username || 'User'}
+                      sx={{
+                        width: 32,
+                        height: 32,
+                        border: '2px solid',
+                        borderColor: 'primary.main',
+                      }}
+                    />
+                  </Tooltip>
+                  <Chip 
+                    label={currentUser?.role || UserRole.USER} 
+                    color={getRoleColor(currentUser?.role)}
+                    size="small"
+                    sx={{ fontSize: '0.7rem', height: '20px' }}
                   />
                 </Box>
 
-                <Button
-                  onClick={onLogout}
-                  variant="danger"
-                  startIcon={<LogoutIcon />}
-                  size="small"
+                {/* Profile Dropdown Menu */}
+                <Menu
+                  anchorEl={anchorEl}
+                  open={isMenuOpen}
+                  onClose={handleProfileMenuClose}
+                  onMouseLeave={handleProfileMenuClose}
+                  MenuListProps={{
+                    'aria-labelledby': 'profile-button',
+                    onMouseLeave: handleProfileMenuClose,
+                  }}
+                  PaperProps={{
+                    elevation: 8,
+                    sx: {
+                      mt: 1,
+                      minWidth: 250,
+                      '& .MuiMenuItem-root': {
+                        px: 2,
+                        py: 1,
+                      },
+                    },
+                  }}
+                  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                 >
-                  Logout
-                </Button>
+                  {/* User Info Header */}
+                  <Box sx={{ px: 2, py: 1.5, backgroundColor: 'grey.50' }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      {currentUser?.username}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {currentUser?.email}
+                    </Typography>
+                    <Box sx={{ mt: 0.5 }}>
+                      <Chip 
+                        label={currentUser?.role || UserRole.USER} 
+                        color={getRoleColor(currentUser?.role)}
+                        size="small"
+                      />
+                    </Box>
+                  </Box>
+                  
+                  <Divider />
+                  
+                  {/* Personal Details Toggle */}
+                  <MenuItem onClick={handlePersonalDetailsClick}>
+                    <ListItemIcon>
+                      <PersonIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText primary="Personal Details" />
+                  </MenuItem>
+                  
+                  {/* Personal Details - Show only when clicked */}
+                  {showPersonalDetails && (
+                    <>
+                      <Box sx={{ px: 2, py: 1, backgroundColor: 'grey.25' }}>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontWeight: 600 }}>
+                          Account Information
+                        </Typography>
+                        
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                          <PersonIcon fontSize="small" color="action" />
+                          <Box>
+                            <Typography variant="caption" color="text.secondary">
+                              Username
+                            </Typography>
+                            <Typography variant="body2">
+                              {currentUser?.username}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                          <EmailIcon fontSize="small" color="action" />
+                          <Box>
+                            <Typography variant="caption" color="text.secondary">
+                              Email
+                            </Typography>
+                            <Typography variant="body2">
+                              {currentUser?.email || 'Not provided'}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <PhoneIcon fontSize="small" color="action" />
+                          <Box>
+                            <Typography variant="caption" color="text.secondary">
+                              Mobile
+                            </Typography>
+                            <Typography variant="body2">
+                              {currentUser?.mobile || 'Not provided'}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                      <Divider />
+                    </>
+                  )}
+                  
+                  {/* Logout */}
+                  <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
+                    <ListItemIcon>
+                      <LogoutIcon fontSize="small" sx={{ color: 'error.main' }} />
+                    </ListItemIcon>
+                    <ListItemText primary="Logout" />
+                  </MenuItem>
+                </Menu>
               </Box>
             )}
           </Box>

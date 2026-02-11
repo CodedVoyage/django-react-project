@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Button,
   Alert,
   CircularProgress,
   Chip,
@@ -30,6 +29,7 @@ import {
   Dashboard as DashboardIcon,
 } from '@mui/icons-material';
 import { MuiLoginForm } from '../components/ui';
+import Button from '../components/ui/Button';
 import { apiService } from '../services';
 import { ApiData, User, UserRole } from '../types';
 
@@ -327,16 +327,10 @@ const HomePage: React.FC<HomePageProps> = ({
               )}
               {/* Getting Started Button */}
               <Button
-                variant="contained"
+                variant="primary"
                 startIcon={<GettingStartedIcon />}
                 onClick={() => setGettingStartedOpen(true)}
-                sx={{
-                  mt: isAuthenticated ? 1 : 2,
-                  backgroundColor: 'primary.main',
-                  '&:hover': {
-                    backgroundColor: 'primary.dark',
-                  },
-                }}
+                size="small"
               >
                 Getting Started
               </Button>
@@ -440,20 +434,20 @@ const HomePage: React.FC<HomePageProps> = ({
                         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                           <Button
                             onClick={fetchApiData}
-                            variant="outlined"
-                            startIcon={loading ? <CircularProgress size={20} /> : <RefreshIcon />}
+                            variant="outlined-primary"
+                            startIcon={loading ? <CircularProgress size={16} /> : <RefreshIcon />}
                             disabled={loading}
-                            size="large"
+                            size="small"
                           >
                             Refresh Connection Status
                           </Button>
 
                           <Button
                             onClick={testPost}
-                            variant="contained"
-                            startIcon={isTestingPost ? <CircularProgress size={20} /> : <SendIcon />}
+                            variant="primary"
+                            startIcon={isTestingPost ? <CircularProgress size={16} /> : <SendIcon />}
                             disabled={isTestingPost}
-                            size="large"
+                            size="small"
                           >
                             Test Admin POST
                           </Button>
