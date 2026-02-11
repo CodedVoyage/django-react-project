@@ -139,24 +139,6 @@ const Header: React.FC<HeaderProps> = ({
               </>
             ) : (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                {/* Admin Panel Icon */}
-                {currentUser?.role === UserRole.ADMIN && (
-                  <Tooltip title="Admin Panel">
-                    <IconButton
-                      onClick={() => onPageChange('admin')}
-                      color={currentPage === 'admin' ? 'error' : 'default'}
-                      sx={{
-                        backgroundColor: currentPage === 'admin' ? 'error.light' : 'transparent',
-                        '&:hover': {
-                          backgroundColor: currentPage === 'admin' ? 'error.light' : 'action.hover',
-                        },
-                      }}
-                    >
-                      <AdminIcon />
-                    </IconButton>
-                  </Tooltip>
-                )}
-
                 {/* User Profile with Dropdown */}
                 <Box 
                   sx={{ 
