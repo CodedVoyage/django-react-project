@@ -7,8 +7,13 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   type = 'button',
   variant = 'primary',
+  size = 'medium',
   disabled = false,
   loading = false,
+  startIcon,
+  endIcon,
+  fullWidth = false,
+  className = '',
 }) => {
   const handleClick = () => {
     if (!disabled && !loading && onClick) {
@@ -16,10 +21,20 @@ const Button: React.FC<ButtonProps> = ({
     }
   };
 
+  const getButtonClasses = () => {
+    const baseClass = 'btn';
+    const variantClass = `btn-${variant}`;
+    const sizeClass = `btn-${size}`;
+    const disabledClass = disabled || loading ? 'btn-disabled' : '';
+    const fullWidthClass = fullWidth ? 'btn-full-width' : '';
+    
+    return `${baseClass} ${variantClass} ${sizeClass} ${disabledClass} ${fullWidthClass} ${className}`.trim();
+  };
+
   return (
     <button
       type={type}
-      className={`btn btn-${variant} ${disabled || loading ? 'btn-disabled' : ''}`}
+      className={getButtonClasses()}
       onClick={handleClick}
       disabled={disabled || loading}
     >
@@ -29,7 +44,11 @@ const Button: React.FC<ButtonProps> = ({
           Loading...
         </span>
       ) : (
-        children
+        <>
+          {startIcon && <span className="btn-icon btn-start-icon">{startIcon}</span>}
+          <span className="btn-content">{children}</span>
+          {endIcon && <span className="btn-icon btn-end-icon">{endIcon}</span>}
+        </>
       )}
     </button>
   );

@@ -4,7 +4,6 @@ import {
   CardContent,
   Typography,
   TextField,
-  Button,
   Box,
   Alert,
   CircularProgress,
@@ -19,6 +18,7 @@ import {
 } from '@mui/icons-material';
 import { apiService } from '../../services';
 import { RegistrationCredentials } from '../../types';
+import Button from './Button';
 
 interface MuiRegistrationFormProps {
   onRegistrationSuccess?: (message: string) => void;
@@ -215,14 +215,13 @@ const MuiRegistrationForm: React.FC<MuiRegistrationFormProps> = ({
 
           <Button
             type="submit"
-            variant="contained"
-            size="large"
+            variant="primary"
+            size="small"
             disabled={isSubmitting}
             fullWidth
             startIcon={
-              isSubmitting ? <CircularProgress size={20} color="inherit" /> : <RegisterIcon />
+              isSubmitting ? <CircularProgress size={16} color="inherit" /> : <RegisterIcon />
             }
-            sx={{ py: 1.5, mt: 4 }}
           >
             {isSubmitting ? 'Creating Account...' : 'Create Account'}
           </Button>
@@ -232,10 +231,10 @@ const MuiRegistrationForm: React.FC<MuiRegistrationFormProps> = ({
               Already have an account?{' '}
             </Typography>
             <Button
-              variant="text"
+              variant="outlined-primary"
+              size="small"
               onClick={onSwitchToLogin}
               disabled={isSubmitting}
-              sx={{ textTransform: 'none' }}
             >
               Sign in here
             </Button>

@@ -3,7 +3,6 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  Button,
   Box,
   Container,
   Chip,
@@ -16,6 +15,7 @@ import {
   Logout as LogoutIcon,
 } from '@mui/icons-material';
 import { PageType, User, UserRole } from '../../types';
+import Button from '../ui/Button';
 
 interface HeaderProps {
   currentPage: PageType;
@@ -57,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({
       }}
     >
       <Container maxWidth="xl">
-        <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
+        <Toolbar sx={{ justifyContent: 'space-between', py: 0.5 }}>
           {/* Brand */}
           <Typography
             variant="h5"
@@ -76,9 +76,9 @@ const Header: React.FC<HeaderProps> = ({
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Button
               onClick={() => onPageChange('home')}
-              variant={currentPage === 'home' ? 'contained' : 'outlined'}
+              variant={currentPage === 'home' ? 'primary' : 'outlined-primary'}
               startIcon={<HomeIcon />}
-              size="medium"
+              size="small"
             >
               Home
             </Button>
@@ -87,10 +87,9 @@ const Header: React.FC<HeaderProps> = ({
               <>
                 <Button
                   onClick={() => onPageChange('register')}
-                  variant={currentPage === 'register' ? 'contained' : 'outlined'}
+                  variant={currentPage === 'register' ? 'secondary' : 'outlined-secondary'}
                   startIcon={<RegisterIcon />}
-                  size="medium"
-                  color="secondary"
+                  size="small"
                 >
                   Register
                 </Button>
@@ -101,10 +100,9 @@ const Header: React.FC<HeaderProps> = ({
                 {currentUser?.role === UserRole.ADMIN && (
                   <Button
                     onClick={() => onPageChange('admin')}
-                    variant={currentPage === 'admin' ? 'contained' : 'outlined'}
+                    variant={currentPage === 'admin' ? 'danger' : 'outlined-danger'}
                     startIcon={<AdminIcon />}
-                    size="medium"
-                    color="error"
+                    size="small"
                   >
                     Admin Panel
                   </Button>
@@ -122,8 +120,8 @@ const Header: React.FC<HeaderProps> = ({
                   src={currentUser?.profileImage || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser?.username}`}
                   alt={currentUser?.username || 'User'}
                   sx={{
-                    width: 40,
-                    height: 40,
+                    width: 32,
+                    height: 32,
                     borderRadius: '50%',
                     objectFit: 'cover',
                     border: '2px solid',
@@ -134,10 +132,9 @@ const Header: React.FC<HeaderProps> = ({
 
                 <Button
                   onClick={onLogout}
-                  variant="contained"
-                  color="error"
+                  variant="danger"
                   startIcon={<LogoutIcon />}
-                  size="medium"
+                  size="small"
                 >
                   Logout
                 </Button>

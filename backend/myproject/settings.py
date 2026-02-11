@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-y!*&^4f01(r*h-xueb$%@r7rcb15g&1u(6#8#5v=&a4ncfkka#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
 
 
 # Application definition
@@ -142,11 +142,43 @@ REST_FRAMEWORK = {
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3001",  # React development server
+    "http://localhost:3000",  # React development server (default port)
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",  # Alternative React port
     "http://127.0.0.1:3001",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
-# For development - allows all origins
-# CORS_ALLOW_ALL_ORIGINS = True
+# Allow specific headers
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# Allow specific methods
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+# Additional CORS settings for debugging
+CORS_ALLOW_ALL_ORIGINS = True  # Temporary for debugging
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^http://localhost:\d+$",
+    r"^http://127\.0\.0\.1:\d+$",
+]
+
+# Preflight cache duration
+CORS_PREFLIGHT_MAX_AGE = 86400

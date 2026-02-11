@@ -1,0 +1,20 @@
+# Admin Password Management Commands
+
+# 1. Change admin password interactively:
+python manage.py changepassword admin
+
+# 2. Create new superuser:
+python manage.py createsuperuser
+
+# 3. Reset admin password via Django shell:
+python manage.py shell -c "
+from django.contrib.auth.models import User
+admin = User.objects.get(username='admin')
+admin.set_password('new_password_here')
+admin.save()
+print('Password updated successfully!')
+"
+
+# 4. Test login with new credentials:
+# POST http://localhost:8000/api/auth/login/
+# Body: {"userid":"admin","password":"new_password"}

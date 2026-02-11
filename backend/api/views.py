@@ -8,7 +8,31 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 import json
+
+@csrf_exempt
+@require_http_methods(["GET", "POST", "OPTIONS"])
+def cors_test(request):
+    """
+    Simple test endpoint to check CORS functionality
+    """
+    response_data = {
+        'message': 'CORS test successful',
+        'method': request.method,
+        'headers': dict(request.headers)
+    }
+    
+    response = JsonResponse(response_data)
+    
+    # Manually set CORS headers for testing
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    response["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    
+    return response
 
 @api_view(['GET'])
 def api_overview(request):
@@ -26,7 +50,7 @@ def api_overview(request):
             '/api/auth/users/',
             '/api/auth/change-role/',
             '/api/auth/toggle-status/',
-        ]
+        ]   
     }
     return Response(data, status=status.HTTP_200_OK)
 
@@ -79,33 +103,65 @@ def register(request):
 
         # Validate required fields
         if not all([username, email, password]):
-            return Response({
+            response = Response({
                 'success': False,
                 'message': 'Username, email, and password are required'
             }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Add manual CORS headers as workaround
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+            response["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+            response["Access-Control-Allow-Credentials"] = "true"
+            
+            return response
 
         # Check if username already exists
         if User.objects.filter(username=username).exists():
-            return Response({
+            response = Response({
                 'success': False,
                 'message': 'Username already exists'
             }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Add manual CORS headers as workaround
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+            response["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+            response["Access-Control-Allow-Credentials"] = "true"
+            
+            return response
 
         # Check if email already exists
         if User.objects.filter(email=email).exists():
-            return Response({
+            response = Response({
                 'success': False,
                 'message': 'Email already exists'
             }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Add manual CORS headers as workaround
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+            response["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+            response["Access-Control-Allow-Credentials"] = "true"
+            
+            return response
 
         # Validate password
         try:
             validate_password(password)
         except ValidationError as e:
-            return Response({
+            response = Response({
                 'success': False,
                 'message': str(e.messages[0]) if e.messages else 'Password validation failed'
             }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Add manual CORS headers as workaround
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+            response["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+            response["Access-Control-Allow-Credentials"] = "true"
+            
+            return response
 
         # Create user
         user = User.objects.create_user(
@@ -125,13 +181,29 @@ def register(request):
             'user': serialize_user(user)
         }
 
-        return Response(response_data, status=status.HTTP_201_CREATED)
+        response = Response(response_data, status=status.HTTP_201_CREATED)
+        
+        # Add manual CORS headers as workaround
+        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        response["Access-Control-Allow-Credentials"] = "true"
+        
+        return response
 
     except Exception as e:
-        return Response({
+        response = Response({
             'success': False,
             'message': f'Registration failed: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        # Add manual CORS headers as workaround
+        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        response["Access-Control-Allow-Credentials"] = "true"
+        
+        return response
 
 @api_view(['POST'])
 def login_user(request):
@@ -144,25 +216,49 @@ def login_user(request):
         password = data.get('password')
 
         if not all([userid, password]):
-            return Response({
+            response = Response({
                 'success': False,
                 'message': 'User ID and password are required'
             }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Add manual CORS headers as workaround
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+            response["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+            response["Access-Control-Allow-Credentials"] = "true"
+            
+            return response
 
         # Authenticate user
         user = authenticate(request, username=userid, password=password)
 
         if not user:
-            return Response({
+            response = Response({
                 'success': False,
                 'message': 'Invalid credentials'
             }, status=status.HTTP_401_UNAUTHORIZED)
+            
+            # Add manual CORS headers as workaround
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+            response["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+            response["Access-Control-Allow-Credentials"] = "true"
+            
+            return response
 
         if not user.is_active:
-            return Response({
+            response = Response({
                 'success': False,
                 'message': 'Account is deactivated. Please contact administrator.'
             }, status=status.HTTP_401_UNAUTHORIZED)
+            
+            # Add manual CORS headers as workaround
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+            response["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+            response["Access-Control-Allow-Credentials"] = "true"
+            
+            return response
 
         # Get or create token
         token, created = Token.objects.get_or_create(user=user)
@@ -174,13 +270,29 @@ def login_user(request):
             'user': serialize_user(user)
         }
 
-        return Response(response_data, status=status.HTTP_200_OK)
+        response = Response(response_data, status=status.HTTP_200_OK)
+        
+        # Add manual CORS headers as workaround
+        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        response["Access-Control-Allow-Credentials"] = "true"
+        
+        return response
 
     except Exception as e:
-        return Response({
+        response = Response({
             'success': False,
             'message': f'Login failed: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        # Add manual CORS headers as workaround
+        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        response["Access-Control-Allow-Credentials"] = "true"
+        
+        return response
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminUser])

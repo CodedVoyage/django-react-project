@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('', views.api_overview, name='api_overview'),
     path('test/', views.test_endpoint, name='test_endpoint'),
+    path('cors-test/', views.cors_test, name='cors_test'),  # Manual CORS test
 
     # Authentication endpoints
     path('auth/register/', views.register, name='register'),
