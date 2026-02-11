@@ -1,0 +1,162 @@
+.home-page {
+  min-height: calc(100vh - 80px); /* Adjust for header height */
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 40px 20px;
+}
+
+.home-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.home-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.home-header h1 {
+  color: #2d3748;
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+}
+
+.home-header p {
+  color: #4a5568;
+  font-size: 18px;
+  margin: 0;
+}
+
+.status-message {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  margin: 24px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.status-message.loading {
+  background-color: #f7fafc;
+  border-left: 4px solid #4299e1;
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.status-message.error {
+  background-color: #fed7d7;
+  border-left: 4px solid #e53e3e;
+}
+
+.status-message.success {
+  background-color: #c6f6d5;
+  border-left: 4px solid #38a169;
+}
+
+.status-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.status-message h2 {
+  color: #2d3748;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.status-message p {
+  color: #4a5568;
+  margin: 4px 0;
+}
+
+.status-message strong {
+  color: #2d3748;
+}
+
+.endpoints {
+  margin-top: 12px;
+}
+
+.endpoints ul {
+  margin: 8px 0 0 20px;
+  padding: 0;
+}
+
+.endpoints li {
+  color: #4a5568;
+  margin: 4px 0;
+}
+
+.spinner-large {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid #4299e1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+.home-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 32px 0;
+  flex-wrap: wrap;
+}
+
+.home-info {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.home-info p {
+  color: #718096;
+  font-size: 14px;
+  margin: 4px 0;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .home-page {
+    padding: 24px 16px;
+  }
+
+  .home-header h1 {
+    font-size: 28px;
+  }
+
+  .home-header p {
+    font-size: 16px;
+  }
+
+  .status-message {
+    padding: 20px;
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .home-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .home-actions button {
+    width: 100%;
+    max-width: 300px;
+  }
+}
